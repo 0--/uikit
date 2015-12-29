@@ -1,3 +1,4 @@
+/*! UIkit 2.24.3 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -102,7 +103,8 @@
                     switch(media[0].nodeName) {
                         case 'IMG':
 
-                            var cover = UI.$('<div class="uk-cover-background uk-position-cover"></div>').css({'background-image':'url('+ media.attr('src') + ')'});
+                            var src = media.prop('currentSrc') || media.attr('src'),
+                                cover = UI.$('<div class="uk-cover-background uk-position-cover"></div>').css({'background-image':'url('+ src + ')'});
 
                             if (media.attr('width') && media.attr('height')) {
                                 placeholder = UI.$('<canvas></canvas>').attr({width:media.attr('width'), height:media.attr('height')});
@@ -112,7 +114,7 @@
                             }
 
                             media.css({width: '100%',height: 'auto', opacity:0});
-                            slide.prepend(cover).data('cover', cover);
+                            slide.prepend(cover).data('cover', cover).data('source', src);
                             break;
 
                         case 'IFRAME':
@@ -270,7 +272,19 @@
                 height = 0;
 
                 this.slides.css('height', '').each(function() {
-                    height = Math.max(height, UI.$(this).height());
+                    var slide = $(this),
+                        cover = slide.data('cover'),
+                        src = slide.data('source'),
+                        media = src && slide.data('media'),
+                        currentSrc = media && media.prop('currentSrc') || media.attr('src');
+
+                    height = Math.max(height, slide.height());
+
+                    if(currentSrc && currentSrc !== src){
+                        slide.data('source', currentSrc).data('cover').css({
+                            backgroundImage: currentSrc
+                        })
+                    }
                 });
             }
 
